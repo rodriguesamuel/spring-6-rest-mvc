@@ -12,4 +12,6 @@ public interface CustomerService {
     Customer getcustomerById(UUID id);
 
     Customer saveNewCustomer(Customer customer);
+
+    void updateCustomerById(UUID customerId, Customer customer);
 }
