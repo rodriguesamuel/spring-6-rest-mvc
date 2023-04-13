@@ -10,11 +10,7 @@ import sam.springframework.spring6restmvc.model.Beer;
 import sam.springframework.spring6restmvc.services.BeerService;
 import sam.springframework.spring6restmvc.services.BeerServiceImpl;
 
-import java.util.UUID;
-
-
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
