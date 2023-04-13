@@ -1,5 +1,7 @@
 package sam.springframework.spring6restmvc.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -11,8 +13,10 @@ import sam.springframework.spring6restmvc.services.CustomerService;
 import sam.springframework.spring6restmvc.services.CustomerServiceImpl;
 
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(CustomerController.class)
@@ -21,10 +25,33 @@ class CustomerControllerTest {
     @Autowired
     MockMvc mockMvc;
 
+    @Autowired
+    ObjectMapper objectMapper;
+
     @MockBean
     CustomerService customerService;
 
-    CustomerServiceImpl customerServiceImpl = new CustomerServiceImpl();
+    CustomerServiceImpl customerServiceImpl;
+
+    @BeforeEach
+    void setUp() {
+        customerServiceImpl = new CustomerServiceImpl();
+    }
+
+    @Test
+    void testCreateNewCustomer() throws Exception {
+        Customer customer = customerServiceImpl.listCustomers().get(0);
+        customer.setId(null);
+
+        given(customerService.saveNewCustomer(any(Customer.class))).willReturn(customerServiceImpl.listCustomers().get(1));
+
+        mockMvc.perform(post("/api/v1/customer")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(customer)))
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"));
+    }
 
     @Test
     void listCustomers() throws Exception {
@@ -32,7 +59,7 @@ class CustomerControllerTest {
         given(customerService.listCustomers()).willReturn(customerServiceImpl.listCustomers());
 
         mockMvc.perform(get("/api/v1/customer")
-                .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.length()", is(3)));
@@ -46,7 +73,7 @@ class CustomerControllerTest {
         given(customerService.getcustomerById(testCustomer.getId())).willReturn(testCustomer);
 
         mockMvc.perform(get("/api/v1/customer/" + testCustomer.getId())
-                .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id", is(testCustomer.getId().toString())))
                 .andExpect(jsonPath("$.customerName", is(testCustomer.getCustomerName())));
