@@ -62,7 +62,7 @@ class BeerControllerTest {
         mockMvc.perform(patch("/api/v1/beer/" + beer.getId())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsBytes(beerMap)))
+                        .content(objectMapper.writeValueAsString(beerMap)))
                 .andExpect(status().isNoContent());
 
         verify(beerService).patchBeerId(uuidArgumentCaptor.capture(), beerArgumentCaptor.capture());
