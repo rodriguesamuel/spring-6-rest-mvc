@@ -13,6 +13,10 @@ class BeerRepositoryTest {
     BeerRepository beerRepository;
 
     @Test
+    void name() {
+    }
+
+    @Test
     void testSaveBeer() {
         Beer savedBeer = beerRepository.save(Beer.builder()
                 .beerName("My beer")
