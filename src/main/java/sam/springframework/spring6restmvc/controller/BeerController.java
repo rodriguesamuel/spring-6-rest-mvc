@@ -10,6 +10,7 @@ import sam.springframework.spring6restmvc.model.Beer;
 import sam.springframework.spring6restmvc.services.BeerService;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -70,6 +71,6 @@ public class BeerController {
 
         log.debug("Get Beer by Id - in controller 1234 asdf");
 
-        return beerService.getBeerById(beerId);
+        return beerService.getBeerById(beerId).orElseThrow(NotFoundException::new);
     }
 }
