@@ -30,6 +30,35 @@ class BeerControllerIT {
     @Rollback
     @Transactional
     @Test
+    void patchExistingBeer() {
+        Beer beer = repository.findAll().get(0);
+        BeerDTO beerDTO = beerMapper.beerToBeerDto(beer);
+        beerDTO.setId(null);
+        beerDTO.setVersion(null);
+        final String beerName = "UPDATED";
+        beerDTO.setBeerName(beerName);
+
+        ResponseEntity  responseEntity = controller.updateBeerPatchById(beer.getId(), beerDTO);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(204));
+
+        Beer updatedBeer = repository.findById(beer.getId()).get();
+        assertThat(updatedBeer.getBeerName()).isEqualTo(beerName);
+        assertThat(updatedBeer.getUpc()).isEqualTo(beer.getUpc());
+        assertThat(updatedBeer.getPrice()).isEqualTo(beer.getPrice());
+        assertThat(updatedBeer.getBeerStyle()).isEqualTo(beer.getBeerStyle());
+        assertThat(updatedBeer.getQuantityOnHand()).isEqualTo(beer.getQuantityOnHand());
+    }
+
+    @Test
+    void testDeleteBydIdNotFound() {
+        assertThrows(NotFoundException.class, () -> {
+            controller.deleteById(UUID.randomUUID());
+        });
+    }
+
+    @Rollback
+    @Transactional
+    @Test
     void deleteByIdFound() {
         Beer beer = repository.findAll().get(0);
 
