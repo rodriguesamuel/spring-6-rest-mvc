@@ -12,9 +12,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import sam.springframework.spring6restmvc.model.BeerDTO;
+import sam.springframework.spring6restmvc.model.BeerStyle;
 import sam.springframework.spring6restmvc.services.BeerService;
 import sam.springframework.spring6restmvc.services.BeerServiceImpl;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -54,6 +56,7 @@ class BeerControllerTest {
         beerServiceImpl = new BeerServiceImpl();
     }
 
+
     @Test
     void testCreateBeerNullName() throws Exception {
 
@@ -66,7 +69,7 @@ class BeerControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(beerDTO)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.length()", is(2)))
+                .andExpect(jsonPath("$.length()", is(6)))
                 .andReturn();
 
         System.out.println(mvcResult.getResponse().getContentAsString());
@@ -104,6 +107,22 @@ class BeerControllerTest {
         verify(beerService).deleteById(uuidArgumentCaptor.capture());
 
         assertThat(beer.getId()).isEqualTo(uuidArgumentCaptor.getValue());
+    }
+
+    @Test
+    void testUpdateBeerBlankName() throws Exception {
+        BeerDTO beer = beerServiceImpl.listBeers().get(0);
+        beer.setBeerName("");
+
+        given(beerService.updateBeerById(any(),any())).willReturn(Optional.of(beer));
+
+        mockMvc.perform(put(BeerController.BEER_PATH_ID , beer.getId())
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(beer)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.length()", is(1)));
+
     }
 
     @Test
